@@ -4,39 +4,57 @@ using UnityEngine;
 
 public class MoveObject : MonoBehaviour
 {
-    [SerializeField] float moveSpeed;
-    [SerializeField] Vector3 moveDirection;
+    private GameObject movingDoor;
+    public float maxOpen = 3.1f;
+    public float maxClose = .2999897f;
+    public float movementSpeed = 1f;
 
-    float totalMoveDistance;
-    Vector3 startingLocation;   
+    bool here;
+    bool opening;
+       
 
     // Start is called before the first frame update
     void Start()
     {
-        totalMoveDistance = 10f;
-        startingLocation = gameObject.transform.position;
+        here = false;
+        opening = false;
+        movingDoor = GameObject.FindWithTag("Door");
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        float distanceTraveled = GetDistanceTraveled();
-
-        if (distanceTraveled > totalMoveDistance)
-        {
-            FlipMoveDirection();
+        if(here){
+            if(movingDoor.transform.position.x < maxOpen){
+                movingDoor.transform.Translate(movementSpeed * Time.deltaTime, 0f, 0f);
+            }
+            else{
+                movingDoor.transform.Translate(0f,0f,0f);
+            }
+            
+        }
+        else{
+            if(movingDoor.transform.position.x > maxClose){
+                movingDoor.transform.Translate(-movementSpeed * Time.deltaTime, 0f, 0f);
+            }
+            else{
+                movingDoor.transform.Translate(0f,0f,0f);
+            }
+            
         }
 
         //gameObject.transform.Translate(moveDirection * moveSpeed);
     }
 
-    void FlipMoveDirection()
-    {
-        moveDirection = -moveDirection;
+    
+    void OnTriggerEnter(Collider other){
+        if(other.gameObject.tag == "Player"){
+            here = true;
+        }
     }
-
-    float GetDistanceTraveled()
-    {
-        return Vector3.Distance(gameObject.transform.position, startingLocation);
+    void OnTriggerExit(Collider other){
+        here = false;
+        movingDoor.transform.Translate(-movementSpeed * Time.deltaTime, 0f, 0f);
     }
-}
+} 
